@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+
+# IDE Specific directories
+.DS_Store
+.idea
+.vscode/
+
+# Data Files and ByteCode files
+*.gz
+*.npz
