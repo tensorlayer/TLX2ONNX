@@ -8,10 +8,10 @@ from .topology import construct_topology
 
 _layer = tlx.nn
 tlx_layer_to_operator = {
-    _layer.UpSampling1D: convert_keras_upsample_1d,
-    _layer.UpSampling2D: convert_keras_upsample_2d,
-    _layer.UpSampling3D: convert_keras_upsample_3d,
-    _layer.BatchNormalization: convert_keras_batch_normalization,
+    _layer.Conv1D: convert_tlx_conv1d,
+    _layer.Conv2D: convert_tlx_conv2d,
+    _layer.Conv3D: convert_tlx_conv3d,
+    _layer.BatchNorm: convert_tlx_batch_norm,
 }
 
 
