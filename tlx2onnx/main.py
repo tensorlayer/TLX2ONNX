@@ -46,16 +46,17 @@ def export(model, input_spec, path=None, export_params=False):
 
     for tlx_node in _topology:
         onnx_node, onnx_value, onnx_weight =tlx_layer_to_operator(tlx_node)
-        onnx_ondes.extend(onnx_ondes)
+        onnx_ondes.extend(onnx_node)
         onnx_values.extend(onnx_value)
         onnx_weights.extend(onnx_weight)
 
     graph = make_graph(
-        name='torch-jit-export',
+        name='tlx-graph-export',
         inputs=[helper.make_tensor_value_info('images', TensorProto.FLOAT, shape=[1, 3, 416, 416])],
         outputs=[helper.make_tensor_value_info('output', TensorProto.FLOAT, shape=[1, 3549, 85])],
         initializer=onnx_weights,
         value_info=onnx_values,
+        nodes=onnx_ondes
     )
 
     onnx.save(graph, path)
