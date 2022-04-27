@@ -30,3 +30,17 @@ def convert_tlx_conv(tlx_node):
 
     return onnx_node, onnx_value, onnx_init
 
+
+def convert_tlx_conv1d(tlx_node):
+    raise NotImplementedError
+
+
+def convert_tlx_conv2d(tlx_node):
+    raise NotImplementedError
+
+
+def convert_tlx_conv3d(tlx_node):
+    raise NotImplementedError
+
+def convert_tlx_conv_transpose1d(tlx_node):
+    raise NotImplementedError
