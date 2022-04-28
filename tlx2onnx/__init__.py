@@ -1,7 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-
 MAJOR = 0
 MINOR = 0
 PATCH = 1
@@ -19,5 +18,5 @@ __download_url__ = 'https://github.com/tensorlayer/TLX2ONNX'
 __license__ = 'apache'
 __keywords__ = 'tensorlayerx, onnx, deep learning'
 
-
 from .main import export
+

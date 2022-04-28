@@ -36,6 +36,7 @@ def construct_topology(model, inputs):
 
     """
 
+
     node_by_depth, all_layers = model.build_graph(inputs)
 
     memory = dict()
@@ -52,4 +53,5 @@ def construct_topology(model, inputs):
             for node in nodes:
                 memory[node.node_name] = memory_node_info(node)
     return memory
+
 

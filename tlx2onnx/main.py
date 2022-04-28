@@ -3,17 +3,10 @@
 
 import tensorlayerx as tlx
 from onnx import helper, TensorProto
-import onnx
 from .topology import construct_topology
-from .op_mapper import *
+import onnx
+from .op_mapper.op_mapper import OpMapper
 
-_layer = tlx.nn
-tlx_layer_to_operator = {
-    _layer.Conv1d: convert_tlx_conv1d,
-    _layer.Conv2d: convert_tlx_conv2d,
-    _layer.Conv3d: convert_tlx_conv3d,
-    _layer.ConvTranspose1d: convert_tlx_conv_transpose1d,
-}
 
 def make_graph(*args, doc_string=None, **kwargs):
     graph = helper.make_graph(*args, doc_string=doc_string, **kwargs)
@@ -22,7 +15,7 @@ def make_graph(*args, doc_string=None, **kwargs):
     return graph
 
 
-def export(model, input_spec, path=None, export_params=False):
+def export(model, input_spec, path=None, export_params=False, opset_version = 9, auto_update_opset=True):
     """
 
     Parameters
@@ -47,10 +40,14 @@ def export(model, input_spec, path=None, export_params=False):
     onnx_ondes = []
     onnx_values = []
     onnx_weights = []
+    if auto_update_opset:
+        opset_version = OpMapper.update_opset_version(memory, opset_version)
+    else:
+        OpMapper.check_support_version(memory, opset_version)
 
     for key in memory.keys():
         if memory[key]['node'].layer.__class__.__name__ not in tlx.nn.inputs.__all__:
-            onnx_node, onnx_value, onnx_weight =tlx_layer_to_operator[memory[key]['node'].layer](memory[key])
+            onnx_node, onnx_value, onnx_weight =OpMapper.mapping(memory[key]['node'], opset_version)
             onnx_ondes.extend(onnx_node)
             onnx_values.extend(onnx_value)
             onnx_weights.extend(onnx_weight)
@@ -59,15 +56,16 @@ def export(model, input_spec, path=None, export_params=False):
 
     graph = make_graph(
         name='tlx-graph-export',
-        inputs=[helper.make_tensor_value_info(input_name, TensorProto.FLOAT, shape=input_shape)],
-        outputs=[helper.make_tensor_value_info(output_name, TensorProto.FLOAT, shape=output_shape)],
+        inputs=[helper.make_tensor_value_info(input_name[0], TensorProto.FLOAT, shape=input_shape)],
+        outputs=[helper.make_tensor_value_info(output_name[0], TensorProto.FLOAT, shape=output_shape)],
         initializer=onnx_weights,
         value_info=onnx_values,
         nodes=onnx_ondes
     )
 
-    onnx.save(graph, path)
-
+    # TODO : SAVE ONNX MODEL
+    # onnx.save(graph, path)
+    return graph
 
 
 
