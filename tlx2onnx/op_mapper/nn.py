@@ -7,17 +7,8 @@ import tensorlayerx as tlx
 from .datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 import numpy as np
 from .op_mapper import OpMapper
+from ..common import make_node
 
-def order_repeated_field(repeated_proto, key_name, order):
-    order = list(order)
-    repeated_proto.sort(key=lambda x: order.index(getattr(x, key_name)))
-
-def make_node(op_type, inputs, outputs, name=None, doc_string=None, domain=None, **kwargs):
-    node = helper.make_node(op_type, inputs, outputs, name, doc_string, domain, **kwargs)
-    if doc_string == '':
-        node.doc_string = ''
-    order_repeated_field(node.attribute, 'name', kwargs.keys())
-    return node
 
 #TODO : CHANGE ACT CONVERTER TO ACTIVATION.PY
 def convert_tlx_relu(inputs, outputs, name):
@@ -240,120 +231,4 @@ class Conv():
         # Signature change for operator Unsqueeze.
         return cls.any_version(node, 13, **kwargs)
 
-
-# def convert_tlx_conv(tlx_node):
-#     """
-#
-#     Parameters
-#     ----------
-#     tlx_node:node dict {node: node,
-#                         in_tensors: node inputs,
-#                         out_tensors: node outputs,
-#                         in_nodes_name: node inputs name,
-#                         out_nodes_name: node outputs name}
-#
-#     Returns
-#     -------
-#
-#     """
-#     Op_name = 'Conv'
-#     onnx_node, onnx_value, onnx_init = [], [], []
-#
-#     attr_dict = OrderedDict()
-#
-#     #### get in_nodes node_index
-#     in_node = tlx_node.in_nodes[0]
-#     in_node_index = str(in_node.node_index)
-#     #### get cur_node_layer node_index
-#     cur_node_index = str(tlx_node.node_index)
-#     layer = tlx_node.layer
-#     layer_type = layer.__class__.__name__
-#
-#     #### get in_tensors
-#     in_tensors = tlx_node.in_tensors[0]
-#
-#
-#     #### get out_tensors
-#     out_tensors = tlx_node.out_tensors[0]
-#
-#     #### get layer_param
-#     layer_param = layer.all_weights
-#
-#
-#     #### get conv spatial
-#     spatial = int(layer_type[-2])
-#
-#     #### get layer_act
-#     layer_act = layer.act.__class__.__name__
-#     # layer_act = "ReLU"
-#
-#     #### get conv raw filter_shape
-#     raw_kernel_shape = layer.filter_shape
-#
-#     #### conv inputs
-#     if len(layer_param) == 1:
-#         w = layer_param[0]
-#         b = None
-#     elif len(layer_param) == 2:
-#         w = layer_param[0]
-#         b = layer_param[1]
-#
-#     #### insert conv attr
-#     attr_dict["kernel_shape"] = layer.kernel_size
-#     attr_dict["dilations"]= layer.dilation
-#     attr_dict["strides"] = layer.stride
-#     data_format = layer.data_format
-#     pads = convert_padding(
-#         layer.padding, in_tensors.shape, out_tensors.shape, attr_dict["kernel_shape"], attr_dict["strides"],
-#         attr_dict["dilations"], spatial, data_format
-#     )
-#     if isinstance(pads, str):
-#         attr_dict["auto_pad"]= pads
-#     else:
-#         attr_dict["pads"] = pads
-#     attr_dict["group"] = 1
-#     attr_dict["outputs"] = [cur_node_index]
-#     attr_dict["name"] = tlx_node.node_name
-#
-#     #### convert x
-#     x_value_info = convert_input(in_tensors, spatial, data_format, in_node_index)
-#     onnx_value.append(x_value_info)
-#
-#     #### convert w
-#     w_name = cur_node_index + '_w'
-#     w_onnx_init = convert_w(w, raw_kernel_shape, spatial, w_name)
-#     onnx_init.append(w_onnx_init)
-#     attr_dict["inputs"] = [in_node_index, w_name]
-#
-#     #### convert b
-#     if b is not None:
-#         b_name = cur_node_index + '_b'
-#         b_onnx_init = convert_b(b, b_name)
-#         onnx_init.append(b_onnx_init)
-#         attr_dict["inputs"] = [in_node_index, w_name, b_name]
-#
-#     #### make act node
-#     if layer_act is not None:
-#         act_convert = tlx_act_2_onnx[layer_act]
-#         act_input = cur_node_index + "_act"
-#         act_out = cur_node_index
-#         #### 如果layer存在act，需要新增一个act node 和 对应act输入的act input info， 并且要更新 conv的outputs 为 act的inputs， 此时act的outputs是整个layer的outputs
-#         attr_dict["outputs"] = [act_input]
-#         act_node = act_convert([act_input], [act_out], tlx_node.node_name + "_act")
-#         out_tensors_numpy = tlx.convert_to_numpy(out_tensors)
-#         out_tensors_dtype = out_tensors_numpy.dtype
-#         out_tensors_shape = out_tensors_numpy.shape
-#         out_tensors_type = NP_TYPE_TO_TENSOR_TYPE[out_tensors_dtype]
-#         if data_format == 'channels_last':
-#             permutation = get_channels_first_permutation(spatial)
-#             out_tensors_shape = np.transpose(out_tensors_shape, permutation)
-#         act_input_value_info = helper.make_tensor_value_info(act_input, out_tensors_type, out_tensors_shape)
-#         onnx_value.append(act_input_value_info)
-#         onnx_node.append(act_node)
-#
-#     #### make conv node
-#     conv_node = helper.make_node("Conv", **attr_dict)
-#     onnx_node.append(conv_node)
-#
-#     return onnx_node, onnx_value, onnx_init
 

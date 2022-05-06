@@ -6,13 +6,7 @@ from onnx import helper, TensorProto
 from .topology import construct_topology
 import onnx
 from .op_mapper.op_mapper import OpMapper
-
-
-def make_graph(*args, doc_string=None, **kwargs):
-    graph = helper.make_graph(*args, doc_string=doc_string, **kwargs)
-    if doc_string == '':
-        graph.doc_string = ''
-    return graph
+from .common import make_graph
 
 
 def export(model, input_spec, path=None, export_params=False, opset_version = 9, auto_update_opset=True):
