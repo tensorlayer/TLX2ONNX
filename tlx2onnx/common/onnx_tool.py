@@ -12,7 +12,7 @@ def make_node(op_type, inputs, outputs, name=None, doc_string=None, domain=None,
     if doc_string == '':
         node.doc_string = ''
     order_repeated_field(node.attribute, 'name', kwargs.keys())
-    return node
+    return node, outputs
 
 def make_graph(*args, doc_string=None, **kwargs):
     graph = helper.make_graph(*args, doc_string=doc_string, **kwargs)
