@@ -55,7 +55,7 @@ class OpMapper(object):
         """
         try:
             # TODO : if node.layer.__class__.__name__ in CUSTOM_OP
-            node_type = node.layer.__class__.__name__
+            node_type = node['node'].layer.__class__.__name__
             opsets = OpMapper.OPSETS[node_type]
             versions = list(opsets.keys())
             convert_verison = get_max_support_version(versions, opset_version)
@@ -64,7 +64,7 @@ class OpMapper(object):
         except Exception as e:
             raise Exception(
                 "Unsupported mapping node [{}] to onnx node, which op_type is {}, specific error: .".
-                    format(node.layer, node.layer.__class__.__name__) + str(e)
+                    format(node['node'].layer, node['node'].layer.__class__.__name__) + str(e)
             )
 
     @staticmethod
