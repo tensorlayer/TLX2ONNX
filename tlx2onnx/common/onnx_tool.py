@@ -12,6 +12,8 @@ def make_node(op_type, inputs, outputs, name=None, doc_string=None, domain=None,
     if doc_string == '':
         node.doc_string = ''
     order_repeated_field(node.attribute, 'name', kwargs.keys())
+    if len(outputs) == 1:
+        outputs = outputs[0]
     return node, outputs
 
 def make_graph(*args, doc_string=None, **kwargs):

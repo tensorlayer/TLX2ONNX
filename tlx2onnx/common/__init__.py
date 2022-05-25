@@ -10,3 +10,6 @@ from .onnx_tool import make_graph
 # preprocessing
 from .preprocessing import transpose_shape
 from .preprocessing import to_numpy
+
+# utils
+from .utils import logging

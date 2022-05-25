@@ -13,9 +13,9 @@ class MLP(Module):
     def __init__(self):
         super(MLP, self).__init__()
         # weights init
-        self.line1 = Linear(in_features=32, out_features=64, b_init=None)
+        self.line1 = Linear(in_features=32, out_features=64)
         self.line2 = Linear(in_features=64, out_features=128, b_init=None)
-        self.line3 = Linear(in_features=128, out_features=10, b_init=None)
+        self.line3 = Linear(in_features=128, out_features=10)
 
     def forward(self, x):
         z = self.line1(x)

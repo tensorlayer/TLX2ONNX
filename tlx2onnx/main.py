@@ -6,8 +6,7 @@ from onnx import helper, TensorProto
 from .topology import construct_topology
 import onnx
 from .op_mapper.op_mapper import OpMapper
-from .common import make_graph
-
+from .common import make_graph, logging
 
 def export(model, input_spec, path=None, export_params=False, opset_version = 9, auto_update_opset=True):
     """
@@ -65,8 +64,7 @@ def export(model, input_spec, path=None, export_params=False, opset_version = 9,
 
     onnx.checker.check_model(model_def)
     onnx.save(model_def, path)
+    logging.info("ONNX model saved in {}".format(path))
     return model_def
-
-
 
 
