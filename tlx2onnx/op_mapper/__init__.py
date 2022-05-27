@@ -7,4 +7,6 @@ from . import activation
 from . import math
 from . import tensor
 from . import op_mapper
-from . import linear
+
+from .nn import *
+from .math import *

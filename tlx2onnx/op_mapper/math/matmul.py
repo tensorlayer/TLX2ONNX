@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from onnx import helper, TensorProto
-from .op_mapper import OpMapper
-from ..common import make_node, transpose_shape
+from ..op_mapper import OpMapper
+from ...common import make_node, transpose_shape
 
 
 @OpMapper('matmul')

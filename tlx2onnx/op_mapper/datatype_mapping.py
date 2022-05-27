@@ -68,3 +68,20 @@ STORAGE_ELEMENT_TYPE_TO_FIELD = {
     int(SequenceProto.SEQUENCE): 'sequence_values',
     int(SequenceProto.MAP): 'map_values'
 }
+
+STR_TYPE_TO_TENSOR_TYPE = {
+    'float32': TensorProto.FLOAT,
+    'uint8': TensorProto.UINT8,
+    'int8': TensorProto.INT8,
+    'uint16': TensorProto.UINT16,
+    'int16': TensorProto.INT16,
+    'int32': TensorProto.INT32,
+    'int64': TensorProto.INT64,
+    'bool': TensorProto.BOOL,
+    'float16': TensorProto.FLOAT16,
+    'float64': TensorProto.DOUBLE,
+    'complex64': TensorProto.COMPLEX64,
+    'complex128': TensorProto.COMPLEX128,
+    'uint32': TensorProto.UINT32,
+    'uint64': TensorProto.UINT64,
+}
