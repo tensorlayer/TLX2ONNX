@@ -39,13 +39,13 @@ class OpMapper(object):
                     opset_dict[version] = (v, self.kwargs)
 
     @staticmethod
-    def mapping(node, opset_version):
+    def mapping(node_info, opset_version):
         """
 
         Parameters
         ----------
-        node : tlx_node
-            tlx_node
+        node_info : dict
+            tlx_node information
         opset_version : int
             the version of onnx_op to convert
 
@@ -53,18 +53,19 @@ class OpMapper(object):
         -------
 
         """
+        node = node_info['node']
         try:
             # TODO : if node.layer.__class__.__name__ in CUSTOM_OP
-            node_type = node['node'].layer.__class__.__name__
+            node_type = node.layer.__class__.__name__
             opsets = OpMapper.OPSETS[node_type]
             versions = list(opsets.keys())
             convert_verison = get_max_support_version(versions, opset_version)
             mapper_func, kw= opsets[convert_verison]
-            return mapper_func(node, **kw)
+            return mapper_func(node_info, **kw)
         except Exception as e:
             raise Exception(
                 "Unsupported mapping node [{}] to onnx node, which op_type is {}, specific error: .".
-                    format(node['node'].layer, node['node'].layer.__class__.__name__) + str(e)
+                    format(node.layer, node.layer.__class__.__name__) + str(e)
             )
 
     @staticmethod

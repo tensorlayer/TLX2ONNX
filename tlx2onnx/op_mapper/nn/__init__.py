@@ -3,3 +3,4 @@
 
 from .linear import *
 from .dropout import *
+from .conv import *
