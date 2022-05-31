@@ -7,45 +7,8 @@ import tensorlayerx as tlx
 from tlx2onnx.op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from tlx2onnx.op_mapper.op_mapper import OpMapper
 from tlx2onnx.common import make_node
+from tlx2onnx.common import make_shape_channels_first, get_channels_first_permutation,tlx_act_2_onnx,get_channels_last_permutation
 
-
-def convert_tlx_relu(inputs, outputs, name = None):
-    opsets = OpMapper.OPSETS['ReLU']
-    map_func, kw= opsets[1]
-    kw = {"inputs" : inputs,
-          "outputs" : outputs}
-    return map_func(node = None, **kw)
-
-tlx_act_2_onnx = {
-    "ReLU" :  convert_tlx_relu,
-    tlx.ELU : "Elu",
-    tlx.Tanh : "Tanh",
-    tlx.Sigmoid : "Sigmoid",
-    tlx.LeakyReLU : "LeakyRelu",
-    tlx.Softplus : "Softplus",
-    tlx.ReLU6 : "Relu6",
-}
-
-def make_shape_channels_first(shape):
-    """Makes a (N, ..., C) shape into (N, C, ...)."""
-
-    return shape[:1] + shape[-1:] + shape[1:-1]
-
-
-def make_shape_channels_last(shape):
-    """Makes a (N, C, ...) shape into (N, ..., C)."""
-
-    return shape[:1] + shape[1:-1] + shape[1:2]
-
-def get_channels_first_permutation(spatial):
-    """Returns a permutation to make a (N, ..., C) array into (N, C, ...)."""
-
-    return [0, spatial + 1] + list(range(1, spatial + 1))
-
-def get_channels_last_permutation(spatial):
-    """Returns a permutation to make a (N, C, ...) array into (N, ..., C)."""
-
-    return [0] + list(range(2, spatial+2)) + [1]
 
 def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, dilations, spatial, data_format):
     if isinstance(padding, str):

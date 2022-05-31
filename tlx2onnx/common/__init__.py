@@ -8,8 +8,7 @@ from .onnx_tool import make_graph
 
 
 # preprocessing
-from .preprocessing import transpose_shape
-from .preprocessing import to_numpy
+from .preprocessing import *
 
 # utils
 from .utils import logging
