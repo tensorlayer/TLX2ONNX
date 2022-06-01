@@ -83,11 +83,11 @@ class Linear():
 
 
         if node['dtype'] != 'float32':
-            out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], STR_TYPE_TO_TENSOR_TYPE[node['dytpe']],
+            out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], STR_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                                 shape=node['out_tensors'][0])
             onnx_value.append(out_v)
             c_node, out = make_node('Cast', inputs=[out], outputs=node['out_nodes_name'],
-                                    to=STR_TYPE_TO_TENSOR_TYPE[node['dytpe']])
+                                    to=STR_TYPE_TO_TENSOR_TYPE[node['dtype']])
             onnx_node.append(c_node)
 
         return onnx_node, onnx_value, onnx_init
