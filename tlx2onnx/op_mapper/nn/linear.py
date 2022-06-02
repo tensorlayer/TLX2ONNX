@@ -4,7 +4,7 @@
 from onnx import helper, TensorProto, numpy_helper
 from ..op_mapper import OpMapper
 from ...common import make_node, to_numpy
-from ..datatype_mapping import STR_TYPE_TO_TENSOR_TYPE
+from ..datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from ...common import tlx_act_2_onnx
 
 
@@ -25,7 +25,7 @@ class Linear():
         onnx_init.append(weights)
 
         # Cast x type to float32
-        if node['dtype'] != 'float32':
+        if str(node['dtype']) != 'float32':
             c_x = helper.make_tensor_value_info(node['in_nodes_name'][0] + 'c', TensorProto.FLOAT, shape=node['in_tensors'][0])
             onnx_value.append(c_x)
             c_node, x = make_node('Cast', inputs=[x], outputs=[node['in_nodes_name'][0] + 'c'], to=TensorProto.FLOAT)
@@ -83,12 +83,12 @@ class Linear():
                 onnx_node.append(o_node)
 
 
-        if node['dtype'] != 'float32':
-            out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], STR_TYPE_TO_TENSOR_TYPE[node['dtype']],
+        if str(node['dtype']) != 'float32':
+            out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                                 shape=node['out_tensors'][0])
             onnx_value.append(out_v)
             c_node, out = make_node('Cast', inputs=[out], outputs=node['out_nodes_name'],
-                                    to=STR_TYPE_TO_TENSOR_TYPE[node['dtype']])
+                                    to=NP_TYPE_TO_TENSOR_TYPE[node['dtype']])
             onnx_node.append(c_node)
 
         return onnx_node, onnx_value, onnx_init

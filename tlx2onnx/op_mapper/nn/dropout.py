@@ -4,7 +4,7 @@
 from onnx import helper
 from ..op_mapper import OpMapper
 from ...common import make_node
-from ..datatype_mapping import STR_TYPE_TO_TENSOR_TYPE
+from ..datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 
 @OpMapper('Dropout')
 class Dropout():
@@ -19,7 +19,7 @@ class Dropout():
         x = node['in_nodes_name'][0]
         dropout_prob = str(node['node'].layer.p)
         dropout_mode = node['node'].layer.is_train
-        ONNX_TYPE = STR_TYPE_TO_TENSOR_TYPE[node['dtype']]
+        ONNX_TYPE = NP_TYPE_TO_TENSOR_TYPE[node['dtype']]
 
         if dropout_mode == False:
             y_v = helper.make_tensor_value_info(node['out_nodes_name'][0], ONNX_TYPE, shape=node['out_tensors'][0])

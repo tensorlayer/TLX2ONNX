@@ -3,8 +3,8 @@
 
 from onnx import helper
 from ..op_mapper import OpMapper
-from ...common import make_node, to_numpy
-from ..datatype_mapping import STR_TYPE_TO_TENSOR_TYPE
+from ...common import make_node
+from ..datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 
 @OpMapper('Flatten')
 class Flatten():
@@ -17,7 +17,7 @@ class Flatten():
         onnx_init = []
 
         x = node['in_nodes_name'][0]
-        out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], STR_TYPE_TO_TENSOR_TYPE[node['dtype']],
+        out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                               shape=node['out_tensors'][0])
         onnx_value.append(out_v)
         out_node, _ = make_node('Flatten', inputs=[x], outputs=node['out_nodes_name'])

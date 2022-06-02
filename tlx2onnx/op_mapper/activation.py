@@ -5,7 +5,6 @@ from onnx import helper, numpy_helper, TensorProto
 from .op_mapper import OpMapper
 from ..common import make_node
 from tlx2onnx.op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
-from ..op_mapper.datatype_mapping import STR_TYPE_TO_TENSOR_TYPE
 import numpy as np
 
 __all__ = ['Relu', 'LeakyReLU', 'ELU', 'Tanh', 'Sigmoid', 'Softmax', 'Softplus', 'ReLU6']
@@ -91,7 +90,7 @@ class ReLU6():
         onnx_init = []
 
         x = node['in_nodes_name'][0]
-        dtype = STR_TYPE_TO_TENSOR_TYPE[node['dtype']]
+        dtype = NP_TYPE_TO_TENSOR_TYPE[node['dtype']]
 
         relu_out = helper.make_tensor_value_info(node['in_nodes_name'][0] + 'r', dtype, shape=node['in_tensors'][0])
         onnx_value.append(relu_out)
