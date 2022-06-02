@@ -12,39 +12,72 @@ def to_numpy(tensor):
     return tlx.convert_to_numpy(tensor)
 
 
-def convert_tlx_relu(inputs, outputs, name = None):
+def convert_tlx_relu(inputs, outputs, act = None):
     opsets = OpMapper.OPSETS['ReLU']
     map_func, kw= opsets[1]
     kw = {"inputs" : inputs,
           "outputs" : outputs}
     return map_func(node = None, **kw)
 
-def convert_tlx_elu(inputs, outputs, name = None):
-    pass
 
-def convert_tlx_tanh(inputs, outputs, name = None):
-    pass
+def convert_tlx_elu(inputs, outputs, act = None):
+    opsets = OpMapper.OPSETS['ELU']
+    map_func, kw = opsets[1]
+    kw = {"inputs": inputs,
+          "outputs": outputs,
+          "alpha": act.alpha}
+    return map_func(node=None, **kw)
 
-def convert_tlx_sigmoid(inputs, outputs, name = None):
-    pass
 
-def convert_tlx_lrelu(inputs, outputs, name = None):
-    pass
+def convert_tlx_tanh(inputs, outputs, act = None):
+    opsets = OpMapper.OPSETS['Tanh']
+    map_func, kw = opsets[1]
+    kw = {"inputs": inputs,
+          "outputs": outputs}
+    return map_func(node=None, **kw)
 
-def convert_tlx_softplus(inputs, outputs, name = None):
-    pass
 
-def convert_tlx_relu6(inputs, outputs, name = None):
-    pass
+def convert_tlx_sigmoid(inputs, outputs, act = None):
+    opsets = OpMapper.OPSETS['Sigmoid']
+    map_func, kw = opsets[1]
+    kw = {"inputs": inputs,
+          "outputs": outputs}
+    return map_func(node=None, **kw)
+
+
+def convert_tlx_lrelu(inputs, outputs, act = None):
+    opsets = OpMapper.OPSETS['LeakyReLU']
+    map_func, kw = opsets[1]
+    kw = {"inputs": inputs,
+          "outputs": outputs,
+          "alpha": act.negative_slope}
+    return map_func(node=None, **kw)
+
+
+def convert_tlx_softplus(inputs, outputs, act = None):
+    opsets = OpMapper.OPSETS['Softplus']
+    map_func, kw = opsets[1]
+    kw = {"inputs": inputs,
+          "outputs": outputs}
+    return map_func(node=None, **kw)
+
+
+def convert_tlx_softmax(inputs, outputs, act = None):
+    opsets = OpMapper.OPSETS['Softmax']
+    map_func, kw = opsets[1]
+    kw = {"inputs": inputs,
+          "outputs": outputs}
+    return map_func(node=None, **kw)
+
 
 tlx_act_2_onnx = {
     "ReLU" :  convert_tlx_relu,
-    "Elu" : convert_tlx_elu,
+    "ELU" : convert_tlx_elu,
     "Tanh" : convert_tlx_tanh,
     "Sigmoid": convert_tlx_sigmoid,
-    "LeakyRelu" : convert_tlx_lrelu,
+    "LeakyReLU" : convert_tlx_lrelu,
     "Softplus" : convert_tlx_softplus,
-    "Relu6" : convert_tlx_relu6,
+    "Softmax": convert_tlx_softmax,
 }
 
 def make_shape_channels_first(shape):

@@ -5,6 +5,7 @@ from onnx import helper, TensorProto, numpy_helper
 from ..op_mapper import OpMapper
 from ...common import make_node, to_numpy
 from ..datatype_mapping import STR_TYPE_TO_TENSOR_TYPE
+from ...common import tlx_act_2_onnx
 
 
 @OpMapper('Linear')
@@ -50,7 +51,7 @@ class Linear():
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(out_v)
                 # Using Opmapper
-                act_node, _ = make_node('Relu', inputs=[out], outputs=node['out_nodes_name'])
+                act_node, _ = tlx_act_2_onnx[act_op]([out], node['out_nodes_name'], node['node'].layer.act)
                 onnx_node.append(act_node)
 
             else:
@@ -73,7 +74,7 @@ class Linear():
                 # Build activation
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(out_v)
-                act_node, out = make_node('Relu', inputs=[out], outputs=node['out_nodes_name'])
+                act_node, out = tlx_act_2_onnx[act_op]([out], node['out_nodes_name'], node['node'].layer.act)
                 onnx_node.append(act_node)
             else:
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])

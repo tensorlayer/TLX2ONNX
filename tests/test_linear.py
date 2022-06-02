@@ -5,7 +5,7 @@ import os
 os.environ["TL_BACKEND"] = 'tensorflow'
 import tensorlayerx as tlx
 from tensorlayerx.nn import Module
-from tensorlayerx.nn import Linear, Dropout, Flatten
+from tensorlayerx.nn import Linear, Dropout, Flatten, ReLU6
 from tlx2onnx.main import export
 
 
@@ -14,9 +14,10 @@ class MLP(Module):
         super(MLP, self).__init__()
         # weights init
         self.flatten = Flatten()
-        self.line1 = Linear(in_features=32, out_features=64, act=tlx.nn.ReLU)
+        self.line1 = Linear(in_features=32, out_features=64, act=tlx.nn.LeakyReLU(0.3))
         self.d1 = Dropout()
         self.line2 = Linear(in_features=64, out_features=128, b_init=None)
+        self.relu6 = ReLU6()
         self.line3 = Linear(in_features=128, out_features=10, act=tlx.nn.ReLU)
 
     def forward(self, x):
@@ -24,6 +25,7 @@ class MLP(Module):
         z = self.line1(x)
         z = self.d1(z)
         z = self.line2(z)
+        z = self.relu6(z)
         z = self.line3(z)
         return z
 
