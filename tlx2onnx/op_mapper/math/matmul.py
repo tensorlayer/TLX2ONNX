@@ -6,7 +6,7 @@ from ..op_mapper import OpMapper
 from ...common import make_node, transpose_shape
 
 
-@OpMapper('matmul')
+@OpMapper('MatMul')
 class MatMul():
     # supports v1-v12
 
@@ -19,7 +19,7 @@ class MatMul():
         x = node['in_nodes_name'][0]
         y = node['in_nodes_name'][1]
 
-        if node.attr('transpose_X'):
+        if hasattr(node['node'], 'transpose_X'):
             perm = list(range(len(node['in_tensors'][0])))
             perm[-1], perm[-2] = perm[-2], perm[-1]
             if node['dtype'] == 'float64':
@@ -41,7 +41,7 @@ class MatMul():
                 cxt, x = make_node('Transpose', inputs=[x], outputs=[['in_nodes_name'][0]] + '_t', perm=perm)
                 onnx_node.append(cxt)
 
-        if node.attr('transpose_Y'):
+        if hasattr(node['node'], 'transpose_Y'):
             perm = list(range(len(node['in_tensors'][1])))
             perm[-1], perm[-2] = perm[-2], perm[-1]
             if node['dtype'] == 'float64':
@@ -64,17 +64,17 @@ class MatMul():
                 onnx_node.append(cyt)
 
         if node['dtype'] == 'float64':
-            m_out = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'm', TensorProto.FLOAT, shape=node['out_tensors'])
+            m_out = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'm', TensorProto.FLOAT, shape=node['out_tensors'][0])
             onnx_value.append(m_out)
             mat, m_o = make_node('MatMul', inputs=[x, y], outputs=node['out_nodes_name'][0] + 'm')
             onnx_node.append(mat)
 
-            out = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.DOUBLE, shape=node['out_tensors'])
+            out = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.DOUBLE, shape=node['out_tensors'][0])
             onnx_value.append(out)
             o_node, _ = make_node('Cast', inputs=m_o, to=TensorProto.DOUBLE, outputs=node['out_nodes_name'])
             onnx_node.append(o_node)
         else:
-            out = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'])
+            out = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])
             onnx_value.append(out)
             o_node, _ = make_node('MatMul', inputs=[x, y], outputs=node['out_nodes_name'])
             onnx_node.append(o_node)
