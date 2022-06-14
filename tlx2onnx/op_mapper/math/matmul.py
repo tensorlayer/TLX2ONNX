@@ -60,7 +60,7 @@ class MatMul():
                 cytv = helper.make_tensor_value_info(node['in_nodes_name'][1] + '_t', TensorProto.FLOAT,
                                                      shape=transpose_shape(node['in_tensors'][1], perm))
                 onnx_value.append(cytv)
-                cyt, y = make_node('Transpose', inputs=y, outputs=[node['in_nodes_name'][1] + '_t'], perm=perm)
+                cyt, y = make_node('Transpose', inputs=[y], outputs=[node['in_nodes_name'][1] + '_t'], perm=perm)
                 onnx_node.append(cyt)
 
         if node['dtype'] == 'float64':

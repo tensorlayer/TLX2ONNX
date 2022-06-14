@@ -11,6 +11,49 @@ def transpose_shape(shape, perm):
 def to_numpy(tensor):
     return tlx.convert_to_numpy(tensor)
 
+def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, dilations, spatial, data_format):
+    if isinstance(padding, str):
+        if padding == "SAME":
+            pads = [0] * (spatial * 2)
+            if data_format == "channels_last":
+                input_shape = make_shape_channels_first(input_shape)
+                output_shape = make_shape_channels_first(output_shape)
+
+            if any(input_shape[i + 2] == -1 or output_shape[i + 2] == -1 for i in range(spatial)):
+                return  "SAME_UPPER"
+
+            for i in range(spatial):
+                pad = (
+                    (output_shape[i + 2] - 1) * strides[i]
+                    + dilations[i] * (kernel_shape[i] - 1) + 1
+                    - input_shape[i + 2]
+                )
+                pad = max(pad, 0)
+                pads[i] = pad // 2
+                pads[i + spatial] = pad - pad // 2
+
+            return pads
+
+        elif padding == "VALID":
+            return "VALID"
+    elif isinstance(padding, int):
+        pads = [padding] * spatial * 2
+        return pads
+    elif isinstance(padding, tuple):
+        return list(padding) * 2
+
+
+def convert_w(w, data_format, spatial):
+    w = tlx.convert_to_numpy(w)
+    w_shape = w.shape
+    if tlx.BACKEND == 'tensorflow':
+        w_shape = w_shape[-1:] + w_shape[-2:-1] + w_shape[0:spatial]
+        return tlx.convert_to_tensor(w.reshape(w_shape))
+    elif tlx.BACKEND == 'mindspore':
+        if spatial == 2 and data_format == 'channels_last':
+            w_shape = w_shape[0] + w[-1:] + w[1:3]
+            return tlx.convert_to_tensor(w.reshape(w_shape))
+
 
 def convert_tlx_relu(inputs, outputs, act = None):
     opsets = OpMapper.OPSETS['ReLU']

@@ -69,7 +69,7 @@ class Linear():
                 act_op = node['node'].layer.act.__class__.__name__
                 m_v = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'm', TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(m_v)
-                m_node, out = make_node('MatMul', inputs=[x, y], outputs=node['out_nodes_name'][0] + 'm')
+                m_node, out = make_node('MatMul', inputs=[x, y], outputs=[node['out_nodes_name'][0] + 'm'])
                 onnx_node.append(m_node)
                 # Build activation
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])

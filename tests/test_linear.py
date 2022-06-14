@@ -16,7 +16,7 @@ class MLP(Module):
         self.flatten = Flatten()
         self.line1 = Linear(in_features=32, out_features=64, act=tlx.nn.LeakyReLU(0.3))
         self.d1 = Dropout()
-        self.line2 = Linear(in_features=64, out_features=128, b_init=None)
+        self.line2 = Linear(in_features=64, out_features=128, b_init=None, act=tlx.nn.ReLU)
         self.relu6 = ReLU6()
         self.line3 = Linear(in_features=128, out_features=10, act=tlx.nn.ReLU)
 
