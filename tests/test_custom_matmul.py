@@ -7,6 +7,8 @@ import tensorlayerx as tlx
 from tensorlayerx.nn import Module
 from tensorlayerx.nn import Linear, Dropout, Flatten, ReLU6
 from tlx2onnx.main import export
+import onnxruntime as rt
+import numpy as np
 
 class MatMul(tlx.nn.Module):
     def __init__(self):
@@ -50,3 +52,15 @@ class MLP(Module):
 net = MLP()
 input = tlx.nn.Input(shape=(10, 2, 2, 8))
 onnx_model = export(net, input_spec=input, path='linear_model.onnx')
+
+# Infer Model
+sess = rt.InferenceSession('linear_model.onnx')
+
+input_name = sess.get_inputs()[0].name
+output_name = sess.get_outputs()[0].name
+
+input_data = tlx.nn.Input(shape=(10, 2, 2, 8))
+input_data = np.array(input_data, dtype=np.float32)
+
+result = sess.run([output_name], {input_name: input_data})
+print(result)

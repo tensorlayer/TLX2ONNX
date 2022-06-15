@@ -100,7 +100,7 @@ class ReLU6():
         out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], dtype, shape=node['out_tensors'][0])
         onnx_value.append(out_v)
 
-        max_v = np.array(6).astype(np.int32)
+        max_v = np.array(6).astype(node['dtype'])
         max_value = numpy_helper.from_array(max_v, name='max_v')
         onnx_init.append(max_value)
         min_node, out = make_node('Clip', inputs=[out, "", 'max_v'], outputs=node['out_nodes_name'])

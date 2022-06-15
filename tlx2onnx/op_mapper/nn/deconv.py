@@ -6,7 +6,7 @@ from ..op_mapper import OpMapper
 from ...common import make_node, to_numpy
 from ..datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from ...common import tlx_act_2_onnx, convert_padding, make_shape_channels_first, convert_w, \
-    get_channels_last_permutation
+    get_channels_last_permutation, get_channels_first_permutation
 
 @OpMapper(['ConvTranspose1d', 'ConvTranspose2d', 'ConvTranspose3d'])
 class ConvTranspose():
@@ -40,7 +40,7 @@ class ConvTranspose():
             weights_value = convert_w(weights_value, data_format, spatial)
             t_x = helper.make_tensor_value_info(node['in_nodes_name'][0] + 't', NP_TYPE_TO_TENSOR_TYPE[node['dtype']], shape=x_shape)
             onnx_value.append(t_x)
-            tx_node, x = make_node('Transpose', inputs=[x], outputs=[node['in_nodes_name'][0] + 't'], perm=get_channels_last_permutation(spatial))
+            tx_node, x = make_node('Transpose', inputs=[x], outputs=[node['in_nodes_name'][0] + 't'], perm=get_channels_first_permutation(spatial))
             onnx_node.append(tx_node)
 
 
@@ -57,8 +57,6 @@ class ConvTranspose():
         else:
             attr_dict["pads"] = pads
 
-        print(attr_dict, data_format)
-
         if node['node'].layer.b_init is not None:
             b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b), name=node['node'].layer.name + '/b')
             onnx_init.append(b)
@@ -66,7 +64,7 @@ class ConvTranspose():
             input_list = [x, y, b_name]
         else:
             input_list = [x, y]
-        print(input_list)
+
         if data_format == 'channels_first':
             if node['node'].layer.act is not None:
                 # Build ConvTranspose

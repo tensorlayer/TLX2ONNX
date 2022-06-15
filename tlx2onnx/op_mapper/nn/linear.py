@@ -6,6 +6,7 @@ from ..op_mapper import OpMapper
 from ...common import make_node, to_numpy
 from ..datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from ...common import tlx_act_2_onnx
+import numpy as np
 
 
 @OpMapper('Linear')
@@ -42,7 +43,7 @@ class Linear():
                 # Build addition
                 b_v = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'b', TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(b_v)
-                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b), name=node['node'].layer.name + '/b')
+                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b).astype(np.float32), name=node['node'].layer.name + '/b')
                 onnx_init.append(b)
                 b_node, out = make_node('Add', inputs=[out, node['node'].layer.name + '/b'], outputs=[node['out_nodes_name'][0] + 'b'])
                 onnx_node.append(b_node)
@@ -58,7 +59,7 @@ class Linear():
                 # Build addition
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(out_v)
-                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b), name=node['node'].layer.name + '/b')
+                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b).astype(np.float32), name=node['node'].layer.name + '/b')
                 onnx_init.append(b)
                 o_node, _ = make_node('Add', inputs=[out, node['node'].layer.name + '/b'], outputs=node['out_nodes_name'])
                 onnx_node.append(o_node)
@@ -81,7 +82,6 @@ class Linear():
                 onnx_value.append(out_v)
                 o_node, out = make_node('MatMul', inputs=[x, y], outputs=node['out_nodes_name'])
                 onnx_node.append(o_node)
-
 
         if str(node['dtype']) != 'float32':
             out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
