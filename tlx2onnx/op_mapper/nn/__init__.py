@@ -7,3 +7,4 @@ from .flatten import *
 from .conv import *
 from .normalization import *
 from .deconv import *
+from .globalpool import *

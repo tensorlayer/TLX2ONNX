@@ -22,7 +22,7 @@ class Linear():
         x = node['in_nodes_name'][0]
         # TODO How to compatible multiple framework parameter names
         y = node['node'].layer.name + '/weights'
-        weights = numpy_helper.from_array(arr=to_numpy(node['node'].layer.W), name=y)
+        weights = numpy_helper.from_array(arr=to_numpy(node['node'].layer.weights), name=y)
         onnx_init.append(weights)
 
         # Cast x type to float32
@@ -43,7 +43,7 @@ class Linear():
                 # Build addition
                 b_v = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'b', TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(b_v)
-                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b).astype(np.float32), name=node['node'].layer.name + '/b')
+                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.biases).astype(np.float32), name=node['node'].layer.name + '/b')
                 onnx_init.append(b)
                 b_node, out = make_node('Add', inputs=[out, node['node'].layer.name + '/b'], outputs=[node['out_nodes_name'][0] + 'b'])
                 onnx_node.append(b_node)
@@ -59,7 +59,7 @@ class Linear():
                 # Build addition
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], TensorProto.FLOAT, shape=node['out_tensors'][0])
                 onnx_value.append(out_v)
-                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b).astype(np.float32), name=node['node'].layer.name + '/b')
+                b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.biases).astype(np.float32), name=node['node'].layer.name + '/b')
                 onnx_init.append(b)
                 o_node, _ = make_node('Add', inputs=[out, node['node'].layer.name + '/b'], outputs=node['out_nodes_name'])
                 onnx_node.append(o_node)
