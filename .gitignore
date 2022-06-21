@@ -23,3 +23,6 @@ env/
 # Data Files and ByteCode files
 *.gz
 *.npz
+
+# onnx file
+tests/*.onnx

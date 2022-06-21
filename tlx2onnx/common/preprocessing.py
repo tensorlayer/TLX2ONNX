@@ -143,3 +143,6 @@ def get_channels_last_permutation(spatial):
     """Returns a permutation to make a (N, C, ...) array into (N, ..., C)."""
 
     return [0] + list(range(2, spatial+2)) + [1]
+
+def squeeze_axes(spatial):
+    return list(range(2, spatial+2))

@@ -24,7 +24,7 @@ class ConvTranspose():
         spatial = int(node['node'].layer.__class__.__name__[-2])
 
         y = node['node'].layer.name + '/weights'
-        weights_value = node['node'].layer.W
+        weights_value = node['node'].layer.filters
 
         attr_dict = {}
         attr_dict['dilations'] = dilations = node['attr']['dilation']
@@ -58,7 +58,7 @@ class ConvTranspose():
             attr_dict["pads"] = pads
 
         if node['node'].layer.b_init is not None:
-            b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.b), name=node['node'].layer.name + '/b')
+            b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.biases), name=node['node'].layer.name + '/b')
             onnx_init.append(b)
             b_name = node['node'].layer.name + '/b'
             input_list = [x, y, b_name]
