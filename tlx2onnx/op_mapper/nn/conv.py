@@ -116,9 +116,18 @@ class Conv():
             b = layer_param[1]
 
         #### insert conv attr
-        attr_dict["kernel_shape"] = node['attr']['kernel_size']
-        attr_dict["dilations"] = node['attr']['dilation']
-        attr_dict["strides"] = node['attr']['stride']
+        kernel_size = node['attr']['kernel_size']
+        if isinstance(kernel_size, int):
+            kernel_size = [kernel_size]
+        attr_dict["kernel_shape"] = kernel_size
+        dilations = node['attr']['dilation']
+        if isinstance(dilations, int):
+            dilations = [dilations,]
+        attr_dict["dilations"] = dilations
+        strides = node['attr']['stride']
+        if isinstance(strides, int):
+            strides = [strides]
+        attr_dict["strides"] = strides
         data_format = node['attr']['data_format']
         paddding = node['attr']['padding']
         attr_dict["group"] = 1
