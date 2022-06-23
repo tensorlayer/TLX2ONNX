@@ -3,7 +3,7 @@
 
 from __future__ import absolute_import
 from setuptools import setup, find_packages
-
+import os
 
 MAJOR = 0
 MINOR = 0
@@ -17,6 +17,11 @@ long_description += "Usage: export(tlx_model, input_spec=input, path='model.onnx
 long_description += "GitHub: https://github.com/tensorlayer/TLX2ONNX \n"
 long_description += "Email: tensorlayer@gmail.com"
 
+def req_file(filename, folder=''):
+    with open(os.path.join(folder, filename)) as f:
+        content = f.readlines()
+    return [x.strip() for x in content]
+
 setup(
     name="tlx2onnx",
     version='.'.join(map(str, VERSION[:3])) + ''.join(VERSION[3:]),
@@ -27,7 +32,7 @@ setup(
     long_description_content_type="text/plain",
     url="https://github.com/tensorlayer/TLX2ONNX",
     packages=find_packages(),
-    install_requires=['tensorlayerx>=0.5.1', 'onnx<=1.11.0'],
+    install_requires=req_file("requirements.txt"),
     classifiers=[
         # How mature is this project? Common values are
         #  1 - Planning 2 - Pre-Alpha 3 - Alpha 4 - Beta 5 - Production/Stable 6 - Mature 7 - Inactive

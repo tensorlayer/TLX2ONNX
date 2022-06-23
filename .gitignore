@@ -26,3 +26,13 @@ env/
 
 # onnx file
 tests/*.onnx
+
+# packaging
+build/
+dist/
+eggs/
+.eggs/
+sdist/
+var/
+wheels/
+*.egg-info/
