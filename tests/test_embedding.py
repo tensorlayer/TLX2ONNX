@@ -9,8 +9,8 @@ from tensorlayerx.nn import OneHot
 from tlx2onnx.main import export
 import onnxruntime as rt
 import numpy as np
-import paddle
-paddle.nn.Conv2D
+
+
 class Model(Module):
     def __init__(self):
         super(Model, self).__init__()
