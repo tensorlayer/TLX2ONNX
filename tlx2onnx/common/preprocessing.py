@@ -12,6 +12,8 @@ def to_numpy(tensor):
     return tlx.convert_to_numpy(tensor)
 
 def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, dilations, spatial, data_format):
+    if dilations is None:
+        dilations = [1] * spatial
     if isinstance(padding, str):
         if padding == "SAME":
             pads = [0] * (spatial * 2)

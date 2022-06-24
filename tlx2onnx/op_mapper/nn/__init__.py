@@ -10,3 +10,4 @@ from .deconv import *
 from .globalpool import *
 from .shape import *
 from .embedding import *
+from .pool import *
