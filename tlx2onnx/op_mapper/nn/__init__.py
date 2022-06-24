@@ -9,3 +9,4 @@ from .normalization import *
 from .deconv import *
 from .globalpool import *
 from .shape import *
+from .embedding import *
