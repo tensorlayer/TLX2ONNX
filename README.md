@@ -1,5 +1,5 @@
 # TLX2ONNX
-ONNX Model Exporter for TensorLayerX
+ONNX Model Exporter for TensorLayerX. It's updated on Both [OpenI](https://git.openi.org.cn/OpenI/TLX2ONNX) and [Github](https://github.com/tensorlayer/TLX2ONNX/). You can get a [free GPU](https://git.openi.org.cn/OpenI/TLX2ONNX/debugjob?debugListType=all) on OpenI to use this project.
 
 ## Introduction
 

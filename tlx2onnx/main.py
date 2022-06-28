@@ -30,9 +30,8 @@ def export(model, input_spec, path=None, export_params=False, opset_version = 9,
     output_shape = memory[list(memory.keys())[-1]]['out_tensors'][0]
     input_name = memory[next(iter(memory))]['out_nodes_name'][0]
     output_name = memory[list(memory.keys())[-1]]['out_nodes_name'][0]
-    input_dtype = memory[next(iter(memory))]['dtype']
-    output_dtype = memory[list(memory.keys())[-1]]['dtype']
-
+    input_dtype = memory[next(iter(memory))]['in_dtype']
+    output_dtype = memory[list(memory.keys())[-1]]['out_dtype']
     onnx_nodes = []
     onnx_values = []
     onnx_weights = []
