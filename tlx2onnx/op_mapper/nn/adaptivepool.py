@@ -6,12 +6,21 @@ from collections import OrderedDict
 from tlx2onnx.op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from tlx2onnx.op_mapper.op_mapper import OpMapper
 from tlx2onnx.common import make_node
-from tlx2onnx.common import make_shape_channels_first, get_channels_first_permutation,tlx_act_2_onnx,get_channels_last_permutation
-from tlx2onnx.common import convert_padding
+from tlx2onnx.common import make_shape_channels_first, get_channels_first_permutation,get_channels_last_permutation
 
+def cal_stride_and_kernel(input_shape, output_size, spatial):
+    input_size = input_shape[2:]
+    stride = []
+    kernel = []
+    for i in range(spatial):
+        stride_temp = int(input_size[i] / output_size[i])
+        kernel_temp = input_size[i] - (output_size[i] - 1) * stride_temp
+        stride.append(stride_temp)
+        kernel.append(kernel_temp)
+    return stride, kernel
 
-@OpMapper(["MaxPool1d", "MaxPool2d", "MaxPool3d", "AvgPool1d", "AvgPool2d", "AvgPool3d"])
-class Pool():
+@OpMapper(["AdaptiveMaxPool1d", "AdaptiveMaxPool2d", "AdaptiveMaxPool3d", "AdaptiveAvgPool1d", "AdaptiveAvgPool2d", "AdaptiveAvgPool3d"])
+class AdaptivePool():
     # suppport v1-v11
 
     @classmethod
@@ -35,37 +44,29 @@ class Pool():
         layer = node['node'].layer
         layer_name = layer.__class__.__name__
         spatial = int(layer_name[-2])
-        layer_type = layer_name[:7]
+        layer_type = layer_name[-9:-2]
         if layer_type == "MaxPool":
             Op_name = "MaxPool"
         elif layer_type == "AvgPool":
             Op_name = "AveragePool"
 
-        # insert pool attr
-        kernel_size = node['attr']['kernel_size']
-        if isinstance(kernel_size, int):
-            kernel_size = [kernel_size]
-        attr_dict["kernel_shape"] = kernel_size
-        strides = node['attr']['stride']
-        if isinstance(strides, int):
-            strides = [strides]
-        attr_dict["strides"] = strides
-        data_format = node['attr']['data_format']
-        paddding = node['attr']['padding']
 
-        # convert padding
-        pads = convert_padding(
-            paddding, x_shape, out_shape, attr_dict["kernel_shape"], attr_dict["strides"],
-            None, spatial, data_format
-        )
-        if isinstance(pads, str):
-            attr_dict["auto_pad"] = pads
-        else:
-            attr_dict["pads"] = pads
+        # get output size
+        output_size = layer.output_size
+        if isinstance(output_size, int):
+            output_size = (output_size, ) * spatial
+
+        # insert pool attr
+        data_format = node['attr']['data_format']
+        attr_dict["auto_pad"] = "VALID"
+
 
         if data_format == 'channels_last':
             permutation = get_channels_first_permutation(spatial)
             x_shape_t = make_shape_channels_first(x_shape)
+            strides, kernel_shape = cal_stride_and_kernel(input_shape=x_shape_t, output_size=output_size, spatial=spatial)
+            attr_dict["strides"] = strides
+            attr_dict["kernel_shape"] = kernel_shape
             # insert transpose op: NHWC -> NCHW
             transpose_value = helper.make_tensor_value_info(x_name+'_t', tensor_type, shape=x_shape_t)
             onnx_value.append(transpose_value)
@@ -92,6 +93,10 @@ class Pool():
 
             attr_dict["inputs"] = [x_name]
             attr_dict["outputs"] = [out_name]
+            strides, kernel_shape = cal_stride_and_kernel(input_shape=x_shape, output_size=output_size,
+                                                          spatial=spatial)
+            attr_dict["strides"] = strides
+            attr_dict["kernel_shape"] = kernel_shape
             maxpool_node, out = make_node(Op_name, **attr_dict)
             onnx_node.append(maxpool_node)
             maxpool_value = helper.make_tensor_value_info(out, tensor_type, out_shape)

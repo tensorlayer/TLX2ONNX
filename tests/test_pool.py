@@ -110,7 +110,7 @@ class CNN(Module):
 
 net = CNN()
 input = tlx.nn.Input(shape=(1, 32, 32, 32, 3))
-onnx_model = export(net, input_spec=input, path='conv_model_3d.onnx')
+onnx_model_3d = export(net, input_spec=input, path='conv_model_3d.onnx')
 
 # Infer Model
 sess = rt.InferenceSession('conv_model_3d.onnx')
