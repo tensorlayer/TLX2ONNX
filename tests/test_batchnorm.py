@@ -1,6 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-
+# TODO The output of TLX and ONNX is inconsistent.
 import os
 os.environ["TL_BACKEND"] = 'tensorflow'
 import tensorlayerx as tlx
@@ -25,9 +25,10 @@ class MLP(Module):
         return x
 
 net = MLP()
+net.set_eval()
 input = tlx.nn.Input(shape=(4, 20, 20, 3))
 onnx_model = export(net, input_spec=input, path='batchnorm.onnx')
-print(net(input).shape)
+print("tlx out", net(input))
 
 # Infer Model
 sess = rt.InferenceSession('batchnorm.onnx')
@@ -39,4 +40,4 @@ input_data = tlx.nn.Input(shape=(4, 20, 20, 3))
 input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})
-print(np.shape(result))
+print("onnx out", result)
