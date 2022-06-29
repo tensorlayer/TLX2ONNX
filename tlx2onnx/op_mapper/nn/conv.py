@@ -1,6 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-
+import numpy as np
 from onnx import helper, numpy_helper
 from collections import OrderedDict
 import tensorlayerx as tlx
@@ -47,14 +47,13 @@ def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, d
 
 def convert_w(w, data_format, spatial, w_name):
     w = tlx.convert_to_numpy(w)
-    w_shape = w.shape
     if tlx.BACKEND == 'tensorflow':
-        w_shape = w_shape[-1:] + w_shape[-2:-1] + w_shape[0:spatial]
-        return numpy_helper.from_array(w.reshape(w_shape), name=w_name)
+        w = np.transpose(w, axes=[3, 2, 0, 1])
+        return numpy_helper.from_array(w, name=w_name)
     elif tlx.BACKEND == 'mindspore':
         if spatial == 2 and data_format == 'channels_last':
-            w_shape = w_shape[0] + w[-1:] + w[1:3]
-            return numpy_helper.from_array(w.reshape(w_shape), name=w_name)
+            w = np.transpose(w, axes=[3, 0, 1, 2])
+            return numpy_helper.from_array(w, name=w_name)
     return numpy_helper.from_array(w, name=w_name)
 
 def convert_b(b, b_name):

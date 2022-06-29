@@ -4,6 +4,7 @@
 import numpy as np
 import tensorlayerx as tlx
 from tlx2onnx.op_mapper.op_mapper import OpMapper
+from onnx import helper, numpy_helper
 
 def transpose_shape(shape, perm):
     return np.transpose(np.ones(shape), perm).shape
@@ -45,16 +46,16 @@ def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, d
         return list(padding) * 2
 
 
-def convert_w(w, data_format, spatial):
+def convert_w(w, data_format, spatial, w_name):
     w = tlx.convert_to_numpy(w)
-    w_shape = w.shape
     if tlx.BACKEND == 'tensorflow':
-        w_shape = w_shape[-1:] + w_shape[-2:-1] + w_shape[0:spatial]
-        return tlx.convert_to_tensor(w.reshape(w_shape))
+        w = np.transpose(w, axes=[3, 2, 0, 1])
+        return numpy_helper.from_array(w, name=w_name)
     elif tlx.BACKEND == 'mindspore':
         if spatial == 2 and data_format == 'channels_last':
-            w_shape = w_shape[0] + w[-1:] + w[1:3]
-            return tlx.convert_to_tensor(w.reshape(w_shape))
+            w = np.transpose(w, axes=[3, 0, 1, 2])
+            return numpy_helper.from_array(w, name=w_name)
+    return numpy_helper.from_array(w, name=w_name)
 
 
 def convert_tlx_relu(inputs, outputs, act = None):

@@ -28,7 +28,7 @@ class CNN(Module):
         return z
 
 net = CNN()
-input = tlx.nn.Input(shape=(1,32, 32,3))
+input = tlx.nn.Input(shape=(1, 32, 32, 3))
 net.set_eval()
 output = net(input)
 print("tlx output", output)
@@ -45,4 +45,3 @@ input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})
 print("onnx output", result)
-
