@@ -156,13 +156,13 @@ net = vgg16(pretrained=True)
 net.set_eval()
 onnx_model = export(net, input_spec=input, path='vgg.onnx')
 
-# # Infer Model
-# sess = rt.InferenceSession('vgg.onnx')
-#
-# input_name = sess.get_inputs()[0].name
-# output_name = sess.get_outputs()[0].name
-#
-# # Preprocess input data
+# Infer Model
+sess = rt.InferenceSession('vgg.onnx')
+
+input_name = sess.get_inputs()[0].name
+output_name = sess.get_outputs()[0].name
+
+# Preprocess input data
 # img = tlx.vision.load_image('data/tiger.jpeg')
 # img = tlx.vision.transforms.Resize((224, 224))(img).astype(np.float32) / 255
 # inputs = img * 255 - tlx.convert_to_tensor(np.array([123.68, 116.779, 103.939], dtype=np.float32))
