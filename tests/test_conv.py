@@ -1,6 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-# TODO The output of TLX and ONNX is inconsistent.
+
 import os
 os.environ["TL_BACKEND"] = 'tensorflow'
 # os.environ["TL_BACKEND"] = 'paddle'

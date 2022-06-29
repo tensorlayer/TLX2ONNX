@@ -1,6 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-# TODO The output of TLX and ONNX is inconsistent.
+
 import os
 os.environ["TL_BACKEND"] = 'tensorflow'
 import tensorlayerx as tlx
@@ -34,7 +34,7 @@ sess = rt.InferenceSession('globalavg_model.onnx')
 input_name = sess.get_inputs()[0].name
 output_name = sess.get_outputs()[0].name
 
-input_data = np.random.random(size=(5, 6, 3, 3))
+input_data = tlx.nn.Input(shape=(5, 6, 3, 3))
 input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})
@@ -56,7 +56,7 @@ net = ModelMax()
 net.set_eval()
 input = tlx.nn.Input(shape=(5, 6, 3, 3))
 onnx_model_max = export(net, input_spec=input, path='globalmax_model.onnx')
-print("tlx output", input)
+print("tlx output", net(input))
 
 # Infer Model
 sess = rt.InferenceSession('globalmax_model.onnx')
@@ -64,7 +64,7 @@ sess = rt.InferenceSession('globalmax_model.onnx')
 input_name = sess.get_inputs()[0].name
 output_name = sess.get_outputs()[0].name
 
-input_data = np.random.random(size=(5, 6, 3, 3))
+input_data = tlx.nn.Input(shape=(5, 6, 3, 3))
 input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})

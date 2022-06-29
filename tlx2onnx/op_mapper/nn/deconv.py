@@ -37,16 +37,17 @@ class ConvTranspose():
             # channels last conver weights and input
             x_shape = make_shape_channels_first(x_shape)
             out_temp_shape = make_shape_channels_first(out_shape)
-            weights_value = convert_w(weights_value, data_format, spatial)
+            weights = convert_w(weights_value, data_format, spatial, y)
+            onnx_init.append(weights)
             t_x = helper.make_tensor_value_info(node['in_nodes_name'][0] + 't', NP_TYPE_TO_TENSOR_TYPE[node['dtype']], shape=x_shape)
             onnx_value.append(t_x)
             tx_node, x = make_node('Transpose', inputs=[x], outputs=[node['in_nodes_name'][0] + 't'], perm=get_channels_first_permutation(spatial))
             onnx_node.append(tx_node)
+        else:
+            # Build weights
+            weights = numpy_helper.from_array(arr=to_numpy(weights_value), name=y)
+            onnx_init.append(weights)
 
-
-        # Build weights
-        weights = numpy_helper.from_array(arr=to_numpy(weights_value), name=y)
-        onnx_init.append(weights)
         # Build padding
         pads = convert_padding(
             pads, x_shape, out_shape, kernel_shape, strides,

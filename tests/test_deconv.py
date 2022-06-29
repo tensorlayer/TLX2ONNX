@@ -1,6 +1,6 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-# TODO The output of TLX and ONNX is inconsistent.
+
 import os
 os.environ["TL_BACKEND"] = 'tensorflow'
 import tensorlayerx as tlx
@@ -15,15 +15,15 @@ class MLP(Module):
     def __init__(self):
         super(MLP, self).__init__()
         # weights init
-        # self.conv1 = Conv2d(out_channels=16, kernel_size=3, stride=1, padding=(2, 2), in_channels=3, data_format='channels_last', act = tlx.nn.ReLU)
+        self.conv1 = Conv2d(out_channels=16, kernel_size=3, stride=1, padding=(2, 2), in_channels=3, data_format='channels_last', act = tlx.nn.ReLU)
         self.deconv1 = ConvTranspose2d(out_channels=3, kernel_size=3, stride=1, padding=(2, 2), act=tlx.nn.ReLU, dilation=1, data_format='channels_last')
-        # self.conv2 = Conv2d(out_channels=16, kernel_size=3, stride=1, padding=(2, 2), in_channels=3, data_format='channels_last', act=tlx.nn.ReLU)
+        self.conv2 = Conv2d(out_channels=16, kernel_size=3, stride=1, padding=(2, 2), in_channels=3, data_format='channels_last', act=tlx.nn.ReLU)
 
 
     def forward(self, x):
-        # x = self.conv1(x)
+        x = self.conv1(x)
         x = self.deconv1(x)
-        # x = self.conv2(x)
+        x = self.conv2(x)
         return x
 
 net = MLP()

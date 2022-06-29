@@ -31,11 +31,11 @@ class BatchNorm():
         spatial = int(node['node'].layer.__class__.__name__[-2])
         # get parameters
         beta_name = node['node'].layer.name + '/beta'
-        beta_weight = numpy_helper.from_array(arr=to_numpy(node['node'].layer.beta), name=beta_name)
+        beta_weight = numpy_helper.from_array(arr=to_numpy(node['node'].layer.gamma), name=beta_name)
         onnx_init.append(beta_weight)
 
         gamma_name = node['node'].layer.name + '/gamma'
-        gamma_weight = numpy_helper.from_array(arr=to_numpy(node['node'].layer.gamma), name=gamma_name)
+        gamma_weight = numpy_helper.from_array(arr=to_numpy(node['node'].layer.beta), name=gamma_name)
         onnx_init.append(gamma_weight)
 
         mean_name = node['node'].layer.name + '/mean'
