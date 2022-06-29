@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import tensorlayerx as tlx
-from onnx import helper, TensorProto
+from onnx import helper
 from .topology import construct_topology
 import onnx
 from .op_mapper.op_mapper import OpMapper
 from .common import make_graph, logging
+from .op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 
 def export(model, input_spec, path=None, export_params=False, opset_version = 9, auto_update_opset=True):
     """
@@ -29,7 +30,8 @@ def export(model, input_spec, path=None, export_params=False, opset_version = 9,
     output_shape = memory[list(memory.keys())[-1]]['out_tensors'][0]
     input_name = memory[next(iter(memory))]['out_nodes_name'][0]
     output_name = memory[list(memory.keys())[-1]]['out_nodes_name'][0]
-
+    input_dtype = memory[next(iter(memory))]['in_dtype']
+    output_dtype = memory[list(memory.keys())[-1]]['out_dtype']
     onnx_nodes = []
     onnx_values = []
     onnx_weights = []
@@ -50,8 +52,8 @@ def export(model, input_spec, path=None, export_params=False, opset_version = 9,
     # Make Graph
     graph = make_graph(
         name='tlx-graph-export',
-        inputs=[helper.make_tensor_value_info(input_name, TensorProto.FLOAT, shape=input_shape)],
-        outputs=[helper.make_tensor_value_info(output_name, TensorProto.FLOAT, shape=output_shape)],
+        inputs=[helper.make_tensor_value_info(input_name, NP_TYPE_TO_TENSOR_TYPE[input_dtype], shape=input_shape)],
+        outputs=[helper.make_tensor_value_info(output_name, NP_TYPE_TO_TENSOR_TYPE[output_dtype], shape=output_shape)],
         initializer=onnx_weights,
         value_info=onnx_values,
         nodes=onnx_nodes

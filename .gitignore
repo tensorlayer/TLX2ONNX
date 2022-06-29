@@ -36,3 +36,5 @@ sdist/
 var/
 wheels/
 *.egg-info/
+model/
+data/

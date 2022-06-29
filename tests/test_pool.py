@@ -36,7 +36,9 @@ class CNN(Module):
         return z
 
 net = CNN()
+net.set_eval()
 input = tlx.nn.Input(shape=(1, 32, 32, 3))
+print("tlx output", net(input))
 onnx_model = export(net, input_spec=input, path='conv_model.onnx')
 
 # Infer Model
@@ -49,7 +51,7 @@ input_data = tlx.nn.Input(shape=(1, 32, 32, 3))
 input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})
-print(result)
+print("onnx output", result)
 
 ############################################ test 1d ###########################################################
 class CNN1d(Module):

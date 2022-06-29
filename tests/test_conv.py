@@ -1,10 +1,10 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
-
+# TODO The output of TLX and ONNX is inconsistent.
 import os
-# os.environ["TL_BACKEND"] = 'tensorflow'
+os.environ["TL_BACKEND"] = 'tensorflow'
 # os.environ["TL_BACKEND"] = 'paddle'
-os.environ["TL_BACKEND"] = 'torch'
+# os.environ["TL_BACKEND"] = 'torch'
 # os.environ["TL_BACKEND"] = 'mindspore'
 import tensorlayerx as tlx
 from tensorlayerx.nn import Module
@@ -29,6 +29,9 @@ class CNN(Module):
 
 net = CNN()
 input = tlx.nn.Input(shape=(1,32, 32,3))
+net.set_eval()
+output = net(input)
+print("tlx output", output)
 onnx_model = export(net, input_spec=input, path='conv_model.onnx')
 
 # Infer Model
@@ -41,5 +44,5 @@ input_data = tlx.nn.Input(shape=(1,32, 32,3))
 input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})
-print(result)
+print("onnx output", result)
 
