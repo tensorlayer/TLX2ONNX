@@ -25,7 +25,9 @@ class MLP(Module):
         return z
 
 net = MLP()
+net.set_eval()
 input = tlx.nn.Input(shape=(3, 2, 2, 8))
+print("tlx output", net(input))
 onnx_model = export(net, input_spec=input, path='shape_op.onnx')
 
 # Infer Model
@@ -38,4 +40,4 @@ input_data = tlx.nn.Input(shape=(3, 2, 2, 8))
 input_data = np.array(input_data, dtype=np.float32)
 
 result = sess.run([output_name], {input_name: input_data})
-print(result)
+print("onnx output", result)
