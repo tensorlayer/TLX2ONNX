@@ -49,7 +49,12 @@ def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, d
 def convert_w(w, data_format, spatial, w_name):
     w = tlx.convert_to_numpy(w)
     if tlx.BACKEND == 'tensorflow':
-        w = np.transpose(w, axes=[3, 2, 0, 1])
+        if spatial == 2:
+            w = np.transpose(w, axes=[3, 2, 0, 1])
+        elif spatial == 1:
+            w = np.transpose(w, axes=[2, 1, 0])
+        elif spatial == 3:
+            w = np.transpose(w, axes=[4, 3, 0, 1, 2])
         return numpy_helper.from_array(w, name=w_name)
     elif tlx.BACKEND == 'mindspore':
         if spatial == 2 and data_format == 'channels_last':
