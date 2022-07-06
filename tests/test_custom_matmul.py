@@ -9,7 +9,7 @@ from tensorlayerx.nn import Linear, Dropout, Flatten, ReLU6
 from tlx2onnx.main import export
 import onnxruntime as rt
 import numpy as np
-from tlx2onnx.topology import construct_topology
+
 class MatMul(tlx.nn.Module):
     def __init__(self):
         super(MatMul, self).__init__()
@@ -55,14 +55,6 @@ input = tlx.nn.Input(shape=(10, 2, 2, 8))
 print("tlx output", net(input))
 onnx_model = export(net, input_spec=input, path='linear_model.onnx')
 
-memory = construct_topology(net, input)
-input_shape = memory[next(iter(memory))]['out_tensors']
-output_shape = memory[list(memory.keys())[-1]]['out_tensors']
-input_name = memory[next(iter(memory))]['out_nodes_name']
-output_name = memory[list(memory.keys())[-1]]['out_nodes_name']
-
-for m in memory.keys():
-    print(m, memory[m])
 # Infer Model
 sess = rt.InferenceSession('linear_model.onnx')
 
