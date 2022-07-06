@@ -14,3 +14,4 @@ from .pool import *
 from .adaptivepool import *
 from .dwconv import *
 from .extend import *
+from .rnn import *
