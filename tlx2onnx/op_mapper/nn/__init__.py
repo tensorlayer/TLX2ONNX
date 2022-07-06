@@ -13,3 +13,5 @@ from .embedding import *
 from .pool import *
 from .adaptivepool import *
 from .dwconv import *
+from .rnn import *
+

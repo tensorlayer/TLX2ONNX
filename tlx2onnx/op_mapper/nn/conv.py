@@ -73,7 +73,6 @@ class Conv():
     @classmethod
     def any_version(cls, node, opset, **kwargs):
         """
-
         Parameters
         ----------
         node:node dict {node: node,
@@ -81,10 +80,8 @@ class Conv():
                             out_tensors: node outputs,
                             in_nodes_name: node inputs name,
                             out_nodes_name: node outputs name}
-
         Returns
         -------
-
         """
         Op_name = 'Conv'
         onnx_node, onnx_value, onnx_init = [], [], []
@@ -256,5 +253,3 @@ class Conv():
     def version_13(cls, node, **kwargs):
 
         return cls.any_version(node, 13, **kwargs)
-
-
