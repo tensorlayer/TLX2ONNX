@@ -16,3 +16,4 @@ from .dwconv import *
 from .extend import *
 from .rnn import *
 from .resampling import *
+from .merge import *
