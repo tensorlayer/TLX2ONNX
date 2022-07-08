@@ -25,55 +25,57 @@ pip install tlx2onnx
 ## Usage
 TLX2ONNX can convert models built using TensorLayerX Module Subclass and Layers, and the Layers support list can be found in [Operator list](OP_LIST.md).
 
+The following is an example of converting a multi-layer perceptron. You can get the code from [here](https://github.com/tensorlayer/TLX2ONNX/tree/main/tests/test_merge.py).
 ```python
-#! /usr/bin/python
-# -*- coding: utf-8 -*-
-
+import os
+os.environ["TL_BACKEND"] = 'tensorflow'
 import tensorlayerx as tlx
 from tensorlayerx.nn import Module
-from tensorlayerx.nn import Linear, Dropout, Flatten, ReLU6
-from tlx2onnx import export
+from tensorlayerx.nn import Linear, Concat, Elementwise
+from tlx2onnx.main import export
 import onnxruntime as rt
 import numpy as np
 
-class MLP(Module):
+class CustomModel(Module):
     def __init__(self):
-        super(MLP, self).__init__()
-        # weights init
-        self.flatten = Flatten()
-        self.line1 = Linear(in_features=32, out_features=64, act=tlx.nn.LeakyReLU(0.3))
-        self.d1 = Dropout()
-        self.line2 = Linear(in_features=64, out_features=128, b_init=None, act=tlx.nn.ReLU)
-        self.relu6 = ReLU6()
-        self.line3 = Linear(in_features=128, out_features=10, act=tlx.nn.ReLU)
+        super(CustomModel, self).__init__(name="custom")
+        self.linear1 = Linear(in_features=20, out_features=10, act=tlx.ReLU, name='relu1_1')
+        self.linear2 = Linear(in_features=20, out_features=10, act=tlx.ReLU, name='relu2_1')
+        self.concat = Concat(concat_dim=1, name='concat_layer')
 
-    def forward(self, x):
-        x = self.flatten(x)
-        z = self.line1(x)
-        z = self.d1(z)
-        z = self.line2(z)
-        z = self.relu6(z)
-        z = self.line3(z)
-        return z
+    def forward(self, inputs):
+        d1 = self.linear1(inputs)
+        d2 = self.linear2(inputs)
+        outputs = self.concat([d1, d2])
+        return outputs
 
-net = MLP()
-net.eval()
-input = tlx.nn.Input(shape=(3, 2, 2, 8))
-onnx_model = export(net, input_spec=input, path='linear_model.onnx')
+net = CustomModel()
+input = tlx.nn.Input(shape=(3, 20), init=tlx.initializers.RandomNormal())
+net.set_eval()
+output = net(input)
+print("tlx out", output)
+onnx_model = export(net, input_spec=input, path='concat.onnx')
 
 # Infer Model
-sess = rt.InferenceSession('linear_model.onnx')
+sess = rt.InferenceSession('concat.onnx')
 input_name = sess.get_inputs()[0].name
 output_name = sess.get_outputs()[0].name
-input_data = tlx.nn.Input(shape=(3, 2, 2, 8))
-input_data = np.array(input_data, dtype=np.float32)
+input_data = np.array(input, dtype=np.float32)
 result = sess.run([output_name], {input_name: input_data})
-print(result)
+print('onnx out', result)
 ```
+The converted onnx file can be viewed via Netron.
+
+<p align="center"><img src="https://git.openi.org.cn/laich/pose_data/raw/commit/7ac74f03dbfdd8e023cdb205cd415a8571ebb91a/onnxfile.png" width="580"\></p>
+
+
+The converted results have almost no loss of accuracy. 
+And the graph show the input and output sizes of each layer, which is very helpful for checking the model.
+
 
 # Citation
 
-If you find TensorLayerX useful for your project, please cite the following papers：
+If you find TensorLayerX or TLX2ONNX useful for your project, please cite the following papers：
 
 ```
 @article{tensorlayer2017,
