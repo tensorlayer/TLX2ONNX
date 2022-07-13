@@ -14,9 +14,11 @@ class CustomModel(Module):
     def __init__(self):
         super(CustomModel, self).__init__(name="custom")
         self.pad = PadLayer([[1, 2], [3, 4], [5, 6], [7, 8]], "REFLECT", name='inpad')
+        self.pad2d = ZeroPad2d(padding=((2, 2), (3, 3)), data_format='channels_last')
 
     def forward(self, inputs):
         x = self.pad(inputs)
+        x = self.pad2d(x)
         return x
 
 net = CustomModel()
