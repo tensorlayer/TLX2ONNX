@@ -19,3 +19,5 @@ from .resampling import *
 from .merge import *
 from .noise import *
 from .padding import *
+from .scale import *
+from .stack import *
