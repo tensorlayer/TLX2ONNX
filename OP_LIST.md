@@ -53,18 +53,30 @@
 |Tile| 1~12|Supported| 
 |UpSampling2d| 1~12|Supported| 
 |DownSampling2d| 1~12|Supported| 
-|Concat|
-Elementwise|
-|GaussianNoise|
-|PadLayer|
-|ZeroPad1d|
-|ZeroPad2d|
-|ZeroPad3d|
-|Stack|
-|UnStack|
-|Sign|
-|Scale|
+|Concat| 1~12 | Supported| 
+|Elementwise| 1~12 | Supported| 
+|GaussianNoise| 1~12 | Supported| 
+|PadLayer| 1~12 | Supported| 
+|ZeroPad1d| 1~12 | Supported| 
+|ZeroPad2d| 1~12 | Supported| 
+|ZeroPad3d| 1~12 | Supported| 
+|Stack| 1~12 | Supported| 
+|UnStack| 1~12 | Supported| 
+|Scale| 1~12 | Supported| 
+|RNN|1~12 | Supported| 
+|RNNCell|1~12 | Supported| 
+|LSTM|1~12 | Supported| 
+|LSTMCell|1~12 | Supported| 
+|GRU|1~12 | Supported| 
+|GRUCell|1~12 | Supported| 
+|LayerNorm| 17 | Supported| 
+|GroupConv2d
+|SeparableConv1d
+|SeparableConv2d
+|SubpixelConv2d
 | Matmul | 1~12 | Supported| 
+
+
 
 
 

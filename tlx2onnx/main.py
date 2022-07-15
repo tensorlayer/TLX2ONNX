@@ -9,18 +9,33 @@ from .op_mapper.op_mapper import OpMapper
 from .common import make_graph, logging
 from .op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 
-def export(model, input_spec, path=None, export_params=False, opset_version = 9, auto_update_opset=True):
+def export(model, input_spec, path=None, enable_onnx_checker=True, opset_version = 9, auto_update_opset=True):
     """
 
     Parameters
     ----------
-    model
-    input_spec
-    path
-    export_params
+    model : object
+        TensorLayerX instantiate the net object.
+    input_spec : tensor
+        TensorLayerX Input.
+    path : string
+        ONNX file saving path
+    enable_onnx_checker : bool
+        Whether to enable ONNX model checker.
+    opset_version : int
+        The version of the default (ai.onnx) opset to target. Must be >= 7 and <= 17.
 
     Returns
     -------
+        ONNX model file
+
+    Examples
+    ---------
+    >>> class NET(Module):
+    >>> net = NET()
+    >>> net.set_eval()
+    >>> input = tlx.nn.Input([10, 50, 50, 32], name='input')
+    >>> onnx_model = export(net, input_spec=input, path='vgg.onnx')
 
     """
 
@@ -64,7 +79,8 @@ def export(model, input_spec, path=None, export_params=False, opset_version = 9,
         producer_name='onnx-mode'
     )
 
-    onnx.checker.check_model(model_def)
+    if enable_onnx_checker:
+        onnx.checker.check_model(model_def)
     onnx.save(model_def, path)
     logging.info("ONNX model saved in {}".format(path))
     return model_def
