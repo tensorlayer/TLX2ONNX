@@ -1,2 +1,2 @@
 onnx<=1.11.0
-tensorlayerx>=0.5.1
+tensorlayerx>=0.5.6
