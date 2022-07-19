@@ -8,8 +8,8 @@ from ..datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from ...common import tlx_act_2_onnx, convert_padding, make_shape_channels_first, convert_w, \
     get_channels_last_permutation, get_channels_first_permutation
 
-@OpMapper(['ConvTranspose1d', 'ConvTranspose2d', 'ConvTranspose3d'])
-class ConvTranspose():
+@OpMapper(['MaskedConv3d'])
+class MaskedConv3d():
     # supports v1-v12
 
     @classmethod
@@ -23,8 +23,9 @@ class ConvTranspose():
         out_shape = node['out_tensors'][0]
         spatial = int(node['node'].layer.__class__.__name__[-2])
 
-        y = node['node'].layer.name + '/weights'
-        weights_value = node['node'].layer.filters
+        # make weights
+        y = node['node'].layer.name + '/kernel'
+        weights_value = node['node'].layer.masked_kernel
 
         attr_dict = {}
         attr_dict['dilations'] = dilations = node['attr']['dilation']
@@ -35,11 +36,11 @@ class ConvTranspose():
 
         if data_format == 'channels_last':
             # channels last conver weights and input
-            x_temp_shape = make_shape_channels_first(x_shape)
+            x_shape_temp = make_shape_channels_first(x_shape)
             out_temp_shape = make_shape_channels_first(out_shape)
             weights = convert_w(weights_value, data_format, spatial, y)
             onnx_init.append(weights)
-            t_x = helper.make_tensor_value_info(node['in_nodes_name'][0] + 't', NP_TYPE_TO_TENSOR_TYPE[node['dtype']], shape=x_temp_shape)
+            t_x = helper.make_tensor_value_info(node['in_nodes_name'][0] + 't', NP_TYPE_TO_TENSOR_TYPE[node['dtype']], shape=x_shape_temp)
             onnx_value.append(t_x)
             tx_node, x = make_node('Transpose', inputs=[x], outputs=[node['in_nodes_name'][0] + 't'], perm=get_channels_first_permutation(spatial))
             onnx_node.append(tx_node)
@@ -59,7 +60,7 @@ class ConvTranspose():
             attr_dict["pads"] = pads
 
         if node['node'].layer.b_init is not None:
-            b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.biases), name=node['node'].layer.name + '/b')
+            b = numpy_helper.from_array(arr=to_numpy(node['node'].layer.bias), name=node['node'].layer.name + '/b')
             onnx_init.append(b)
             b_name = node['node'].layer.name + '/b'
             input_list = [x, y, b_name]
@@ -68,11 +69,11 @@ class ConvTranspose():
 
         if data_format == 'channels_first':
             if node['node'].layer.act is not None:
-                # Build ConvTranspose
+                # Build Conv3d
                 de_v = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'de', NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                                      shape=out_shape)
                 onnx_value.append(de_v)
-                ct_node, out = make_node('ConvTranspose', inputs=input_list,
+                ct_node, out = make_node('Conv', inputs=input_list,
                                         outputs=[node['out_nodes_name'][0] + 'de'], **attr_dict)
                 onnx_node.append(ct_node)
 
@@ -87,16 +88,16 @@ class ConvTranspose():
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0], NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                                       shape=out_shape) #
                 onnx_value.append(out_v)
-                ct_node, out = make_node('ConvTranspose', inputs=input_list,
+                ct_node, out = make_node('Conv', inputs=input_list,
                                         outputs=node['out_nodes_name'], **attr_dict)
                 onnx_node.append(ct_node)
         elif data_format == 'channels_last':
             if node['node'].layer.act is not None:
-                # Build ConvTranspose
+                # Build Conv
                 ct_v = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'ct', NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                                      shape=out_temp_shape)
                 onnx_value.append(ct_v)
-                ct_node, out = make_node('ConvTranspose', inputs=input_list,
+                ct_node, out = make_node('Conv', inputs=input_list,
                                         outputs=[node['out_nodes_name'][0] + 'ct'], **attr_dict)
                 onnx_node.append(ct_node)
 
@@ -111,7 +112,7 @@ class ConvTranspose():
                 out_v = helper.make_tensor_value_info(node['out_nodes_name'][0] + 'ct', NP_TYPE_TO_TENSOR_TYPE[node['dtype']],
                                                       shape=out_temp_shape)
                 onnx_value.append(out_v)
-                o_node, out = make_node('ConvTranspose', inputs=input_list,
+                o_node, out = make_node('Conv', inputs=input_list,
                                         outputs=[node['out_nodes_name'][0] + 'ct'], **attr_dict)
                 onnx_node.append(o_node)
 
