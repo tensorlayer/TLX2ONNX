@@ -23,7 +23,10 @@ def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, d
                 output_shape = make_shape_channels_first(output_shape)
 
             if any(input_shape[i + 2] == -1 or output_shape[i + 2] == -1 for i in range(spatial)):
-                return  "SAME_UPPER"
+
+                auto_pad = "SAME_UPPER"
+
+                return  auto_pad
 
             for i in range(spatial):
                 pad = (
@@ -38,13 +41,13 @@ def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, d
             return pads
 
         elif padding == "VALID":
-            return "VALID"
+            auto_pad = "VALID"
+            return auto_pad
     elif isinstance(padding, int):
         pads = [padding] * spatial * 2
         return pads
     elif isinstance(padding, tuple):
         return list(padding) * 2
-
 
 def convert_w(w, data_format, spatial, w_name):
     w = tlx.convert_to_numpy(w)
@@ -62,6 +65,9 @@ def convert_w(w, data_format, spatial, w_name):
             return numpy_helper.from_array(w, name=w_name)
     return numpy_helper.from_array(w, name=w_name)
 
+def convert_b(b, b_name):
+    b = tlx.convert_to_numpy(b)
+    return numpy_helper.from_array(b, name=b_name)
 
 def convert_tlx_relu(inputs, outputs, act = None):
     opsets = OpMapper.OPSETS['ReLU']

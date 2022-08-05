@@ -7,64 +7,8 @@ import tensorlayerx as tlx
 from tlx2onnx.op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from tlx2onnx.op_mapper.op_mapper import OpMapper
 from tlx2onnx.common import make_node
-from tlx2onnx.common import make_shape_channels_first, get_channels_first_permutation,tlx_act_2_onnx,get_channels_last_permutation
-
-
-def convert_padding(padding, input_shape, output_shape, kernel_shape, strides, dilations, spatial, data_format):
-    if isinstance(padding, str):
-        if padding == "SAME":
-            pads = [0] * (spatial * 2)
-            if data_format == "channels_last":
-                input_shape = make_shape_channels_first(input_shape)
-                output_shape = make_shape_channels_first(output_shape)
-
-            if any(input_shape[i + 2] == -1 or output_shape[i + 2] == -1 for i in range(spatial)):
-
-                auto_pad = "SAME_UPPER"
-
-                return  auto_pad
-
-            for i in range(spatial):
-                pad = (
-                    (output_shape[i + 2] - 1) * strides[i]
-                    + dilations[i] * (kernel_shape[i] - 1) + 1
-                    - input_shape[i + 2]
-                )
-                pad = max(pad, 0)
-                pads[i] = pad // 2
-                pads[i + spatial] = pad - pad // 2
-
-            return pads
-
-        elif padding == "VALID":
-            auto_pad = "VALID"
-            return auto_pad
-    elif isinstance(padding, int):
-        pads = [padding] * spatial * 2
-        return pads
-    elif isinstance(padding, tuple):
-        return list(padding) * 2
-
-def convert_w(w, data_format, spatial, w_name):
-    w = tlx.convert_to_numpy(w)
-    if tlx.BACKEND == 'tensorflow':
-        if spatial == 2:
-            w = np.transpose(w, axes=[3, 2, 0, 1])
-        elif spatial == 1:
-            w = np.transpose(w, axes=[2, 1, 0])
-        elif spatial == 3:
-            w = np.transpose(w, axes=[4, 3, 0, 1, 2])
-        return numpy_helper.from_array(w, name=w_name)
-    elif tlx.BACKEND == 'mindspore':
-        if spatial == 2 and data_format == 'channels_last':
-            w = np.transpose(w, axes=[3, 0, 1, 2])
-            return numpy_helper.from_array(w, name=w_name)
-    return numpy_helper.from_array(w, name=w_name)
-
-def convert_b(b, b_name):
-    b = tlx.convert_to_numpy(b)
-    return numpy_helper.from_array(b, name=b_name)
-
+from tlx2onnx.common import make_shape_channels_first, get_channels_first_permutation,get_channels_last_permutation
+from tlx2onnx.common import convert_padding, convert_w, tlx_act_2_onnx, convert_b
 
 @OpMapper(["Conv1d", "Conv2d", "Conv3d"])
 class Conv():
