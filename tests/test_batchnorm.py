@@ -16,7 +16,7 @@ class MLP(Module):
         super(MLP, self).__init__()
         # weights init
         self.conv1 = Conv2d(out_channels=16, kernel_size=3, stride=1, padding=(2, 2), in_channels=3, data_format='channels_last', act = tlx.nn.ReLU)
-        self.bn = BatchNorm2d(data_format='channels_last')
+        self.bn = BatchNorm2d(data_format='channels_last', act=tlx.nn.ReLU)
 
 
     def forward(self, x):

@@ -14,7 +14,7 @@ import numpy as np
 class NET(Module):
     def __init__(self):
         super(NET, self).__init__()
-        self.layernorm = LayerNorm([50, 50, 32])
+        self.layernorm = LayerNorm([50, 50, 32], act=tlx.nn.ReLU)
 
     def forward(self, x):
         x = self.layernorm(x)
