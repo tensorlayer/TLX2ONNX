@@ -17,7 +17,7 @@ class conv(Module):
 
     def __init__(self):
         super(conv, self).__init__()
-        self.conv = SubpixelConv2d(scale=2, data_format="channels_last")
+        self.conv = SubpixelConv2d(scale=2, data_format="channels_last", act=tlx.ReLU)
 
     def forward(self, x):
 
