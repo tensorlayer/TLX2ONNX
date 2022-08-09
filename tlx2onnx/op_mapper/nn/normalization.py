@@ -5,7 +5,7 @@ from onnx import helper, numpy_helper
 from tlx2onnx.op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 from tlx2onnx.op_mapper.op_mapper import OpMapper
 from tlx2onnx.common import make_node, to_numpy, make_shape_channels_first, make_shape_channels_last, \
-    get_channels_first_permutation, get_channels_last_permutation
+    get_channels_first_permutation, get_channels_last_permutation, tlx_act_2_onnx
 
 
 @OpMapper(['BatchNorm', 'BatchNorm1d', 'BatchNorm2d', 'BatchNorm3d'])
@@ -66,6 +66,12 @@ class BatchNorm():
                                      outputs=[node['out_nodes_name'][0] + 'bn']
                                      )
             onnx_node.append(bn_node)
+
+            if node['node'].layer.act is not None:
+                act_op = node['node'].layer.act.__class__.__name__
+                act_node, out = tlx_act_2_onnx[act_op]([out], [node['out_nodes_name'][0] + 'act'], node['node'].layer.act)
+                onnx_node.append(act_node)
+
             # make channels transpose
             t_out = helper.make_tensor_value_info(node['out_nodes_name'][0], NP_TYPE_TO_TENSOR_TYPE[node['dtype']], shape=out_shape)
             onnx_value.append(t_out)
@@ -74,11 +80,22 @@ class BatchNorm():
 
 
         elif data_format == 'channels_first':
-            bn_node, out = make_node('BatchNormalization',
-                                     inputs=[x, beta_name, gamma_name, mean_name, var_name],
-                                     outputs=node['out_nodes_name']
-                                     )
-            onnx_node.append(bn_node)
+            if node['node'].layer.act is None:
+                bn_node, out = make_node('BatchNormalization',
+                                         inputs=[x, beta_name, gamma_name, mean_name, var_name],
+                                         outputs=node['out_nodes_name']
+                                         )
+                onnx_node.append(bn_node)
+            else:
+                bn_node, out = make_node('BatchNormalization',
+                                         inputs=[x, beta_name, gamma_name, mean_name, var_name],
+                                         outputs=[node['out_nodes_name'][0] + 'bn']
+                                         )
+                onnx_node.append(bn_node)
+                act_op = node['node'].layer.act.__class__.__name__
+                act_node, out = tlx_act_2_onnx[act_op]([out], node['out_nodes_name'], node['node'].layer.act)
+                onnx_node.append(act_node)
+
         return onnx_node, onnx_value, onnx_init
 
 
@@ -133,6 +150,12 @@ class LayerNorm():
                                  outputs=[node['out_nodes_name'][0] + 'bn'], epsilon=epsilon
                                  )
         onnx_node.append(ln_node)
+
+        if node['node'].layer.act is not None:
+            act_op = node['node'].layer.act.__class__.__name__
+            act_node, out = tlx_act_2_onnx[act_op]([out], [node['out_nodes_name'][0] + 'act'], node['node'].layer.act)
+            onnx_node.append(act_node)
+
         # make channels transpose
         t_out = helper.make_tensor_value_info(node['out_nodes_name'][0], NP_TYPE_TO_TENSOR_TYPE[node['dtype']], shape=out_shape)
         onnx_value.append(t_out)
