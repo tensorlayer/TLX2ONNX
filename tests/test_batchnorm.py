@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-os.environ["TL_BACKEND"] = 'tensorflow'
+# os.environ["TL_BACKEND"] = 'tensorflow'
+os.environ['TL_BACKEND'] = 'torch'
 import tensorlayerx as tlx
 from tensorlayerx.nn import Module
 from tensorlayerx.nn import Conv2d, BatchNorm2d

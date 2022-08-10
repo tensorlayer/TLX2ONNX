@@ -9,7 +9,7 @@ from .op_mapper.op_mapper import OpMapper
 from .common import make_graph, logging
 from .op_mapper.datatype_mapping import NP_TYPE_TO_TENSOR_TYPE
 
-def export(model, input_spec, path=None, enable_onnx_checker=True, opset_version = 9, auto_update_opset=True):
+def export(model, input_spec, path=None, enable_onnx_checker=True, opset_version = 9, dynamic_axes = None ,auto_update_opset=True):
     """
 
     Parameters
@@ -24,6 +24,9 @@ def export(model, input_spec, path=None, enable_onnx_checker=True, opset_version
         Whether to enable ONNX model checker.
     opset_version : int
         The version of the default (ai.onnx) opset to target. Must be >= 7 and <= 17.
+    dynamic_axes : list or tuple
+        To specify axes of tensors as dynamic.
+        By default the exported model will have fixed shapes of all input and output tensors.
 
     Returns
     -------
@@ -65,20 +68,32 @@ def export(model, input_spec, path=None, enable_onnx_checker=True, opset_version
             pass
 
     # Make Graph
-    graph = make_graph(
-        name='tlx-graph-export',
-        inputs=[helper.make_tensor_value_info(input_name, NP_TYPE_TO_TENSOR_TYPE[input_dtype], shape=input_shape)],
-        outputs=[helper.make_tensor_value_info(output_name, NP_TYPE_TO_TENSOR_TYPE[output_dtype], shape=output_shape)],
-        initializer=onnx_weights,
-        value_info=onnx_values,
-        nodes=onnx_nodes
-    )
+    if dynamic_axes is None:
+        graph = make_graph(
+            name='tlx-graph-export',
+            inputs=[helper.make_tensor_value_info(input_name, NP_TYPE_TO_TENSOR_TYPE[input_dtype], shape=input_shape)],
+            outputs=[helper.make_tensor_value_info(output_name, NP_TYPE_TO_TENSOR_TYPE[output_dtype], shape=output_shape)],
+            initializer=onnx_weights,
+            value_info=onnx_values,
+            nodes=onnx_nodes
+        )
+    else:
+        graph = make_graph(
+            name='tlx-graph-export',
+            inputs=[helper.make_tensor_value_info(input_name, NP_TYPE_TO_TENSOR_TYPE[input_dtype], shape=input_shape)],
+            outputs=[helper.make_tensor_value_info(output_name, NP_TYPE_TO_TENSOR_TYPE[output_dtype], shape=output_shape)],
+            initializer=onnx_weights,
+            nodes=onnx_nodes
+        )
     # Make model
     model_def = helper.make_model(
         graph,
         producer_name='onnx-mode'
     )
-
+    if dynamic_axes is not None:
+        for i in dynamic_axes:
+            model_def.graph.input[0].type.tensor_type.shape.dim[i].dim_param = '?'
+            model_def.graph.output[0].type.tensor_type.shape.dim[i].dim_param = '?'
     if enable_onnx_checker:
         onnx.checker.check_model(model_def)
     onnx.save(model_def, path)
